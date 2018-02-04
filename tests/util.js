@@ -1,12 +1,12 @@
-const async = require('async')
-const utils = require('ethereumjs-util')
+import async from 'async'
+import utils from 'ethereumjs-util'
+import Account from 'ethereumjs-account'
+import Transaction from 'ethereumjs-tx'
+import Block from 'ethereumjs-block'
 const BN = utils.BN
 const rlp = utils.rlp
-const Account = require('ethereumjs-account')
-const Transaction = require('ethereumjs-tx')
-const Block = require('ethereumjs-block')
 
-exports.dumpState = function (state, cb) {
+export let dumpState = function (state, cb) {
   function readAccounts (state) {
     return new Promise((resolve, reject) => {
       let accounts = []
@@ -66,7 +66,7 @@ exports.dumpState = function (state, cb) {
   })
 }
 
-var format = exports.format = function (a, toZero, isHex) {
+export let format = function (a, toZero, isHex) {
   if (a === '') {
     return Buffer.alloc(0)
   }
@@ -94,7 +94,7 @@ var format = exports.format = function (a, toZero, isHex) {
  * @param {[type]} txData the transaction object from tests repo
  * @return {Object}        object that will be passed to VM.runTx function
  */
-exports.makeTx = function (txData) {
+export let makeTx = function (txData) {
   var tx = new Transaction()
   tx.nonce = format(txData.nonce)
   tx.gasPrice = format(txData.gasPrice)
@@ -113,7 +113,7 @@ exports.makeTx = function (txData) {
   return tx
 }
 
-exports.verifyPostConditions = function (state, testData, t, cb) {
+export let verifyPostConditions = function (state, testData, t, cb) {
   var hashedAccounts = {}
   var keyMap = {}
 
@@ -124,7 +124,7 @@ exports.verifyPostConditions = function (state, testData, t, cb) {
   }
 
   var q = async.queue(function (task, cb2) {
-    exports.verifyAccountPostConditions(state, task.address, task.account, task.testData, t, cb2)
+    verifyAccountPostConditions(state, task.address, task.account, task.testData, t, cb2)
   }, 1)
 
   var stream = state.createReadStream()
@@ -171,7 +171,7 @@ exports.verifyPostConditions = function (state, testData, t, cb) {
  * @param {[type]}   acctData postconditions JSON from tests repo
  * @param {Function} cb       completion callback
  */
-exports.verifyAccountPostConditions = function (state, address, account, acctData, t, cb) {
+export let verifyAccountPostConditions = function (state, address, account, acctData, t, cb) {
   t.comment('Account: ' + address)
   t.equal(format(account.balance, true).toString('hex'), format(acctData.balance, true).toString('hex'), 'correct balance')
   t.equal(format(account.nonce, true).toString('hex'), format(acctData.nonce, true).toString('hex'), 'correct nonce')
@@ -222,7 +222,7 @@ exports.verifyAccountPostConditions = function (state, address, account, acctDat
  * @param {Object} results  to verify
  * @param {Object} testData from tests repo
  */
-exports.verifyGas = function (results, testData, t) {
+export let verifyGas = function (results, testData, t) {
   var coinbaseAddr = testData.env.currentCoinbase
   var preBal = testData.pre[coinbaseAddr] ? testData.pre[coinbaseAddr].balance : 0
 
@@ -245,7 +245,7 @@ exports.verifyGas = function (results, testData, t) {
  * @param {Object} results  to verify
  * @param {Object} testData from tests repo
  */
-exports.verifyLogs = function (logs, testData, t) {
+export let verifyLogs = function (logs, testData, t) {
   if (testData.logs) {
     testData.logs.forEach(function (log, i) {
       var rlog = logs[i]
@@ -263,7 +263,7 @@ exports.verifyLogs = function (logs, testData, t) {
  * @param  {Buffer}
  * @return {String}
  */
-exports.toDecimal = function (buffer) {
+export let toDecimal = function (buffer) {
   return new BN(buffer).toString()
 }
 
@@ -272,7 +272,7 @@ exports.toDecimal = function (buffer) {
  * @param {String}
  *  @return {Buffer}
  */
-exports.fromDecimal = function (string) {
+export let fromDecimal = function (string) {
   return Buffer.from(new BN(string).toArray())
 }
 
@@ -281,7 +281,7 @@ exports.fromDecimal = function (string) {
  * @param  {String} hexString address for example '0x03'
  * @return {Buffer}
  */
-exports.fromAddress = function (hexString) {
+export let fromAddress = function (hexString) {
   return utils.setLength(Buffer.from(new BN(hexString.slice(2), 16).toArray()), 32)
 }
 
@@ -290,11 +290,11 @@ exports.fromAddress = function (hexString) {
  * @param {String} hexCode string from tests repo
  * @return {Buffer}
  */
-exports.toCodeHash = function (hexCode) {
+export let toCodeHash = function (hexCode) {
   return utils.sha3(Buffer.from(hexCode.slice(2), 'hex'))
 }
 
-exports.makeBlockHeader = function (data) {
+export let makeBlockHeader = function (data) {
   var header = {}
   header.timestamp = format(data.currentTimestamp)
   header.gasLimit = format(data.currentGasLimit)
@@ -313,9 +313,9 @@ exports.makeBlockHeader = function (data) {
  * @param {Object} transactions transactions for the block
  * @return {Object}  the block
  */
-exports.makeBlockFromEnv = function (env, transactions) {
+export let makeBlockFromEnv = function (env, transactions) {
   return new Block({
-    header: exports.makeBlockHeader(env),
+    header: makeBlockHeader(env),
     transactions: transactions || {},
     uncleHeaders: []
   })
@@ -329,7 +329,7 @@ exports.makeBlockFromEnv = function (env, transactions) {
  * @param {Object} block   that the transaction belongs to
  * @return {Object}        object that will be passed to VM.runCode function
  */
-exports.makeRunCodeData = function (exec, account, block) {
+export let makeRunCodeData = function (exec, account, block) {
   return {
     account: account,
     origin: format(exec.origin, false, true),
@@ -350,7 +350,7 @@ exports.makeRunCodeData = function (exec, account, block) {
  * @param {[type]}   testData - JSON from tests repo
  * @param {Function} done     - callback when function is completed
  */
-exports.setupPreConditions = function (state, testData, done) {
+export let setupPreConditions = function (state, testData, done) {
   var keysOfPre = Object.keys(testData.pre)
 
   async.eachSeries(keysOfPre, function (key, callback) {

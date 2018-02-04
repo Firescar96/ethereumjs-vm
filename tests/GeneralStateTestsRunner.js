@@ -1,8 +1,8 @@
-const async = require('async')
-const VM = require('../index.js')
-const testUtil = require('./util')
-const Trie = require('merkle-patricia-tree/secure')
-const ethUtil = require('ethereumjs-util')
+import async from 'async'
+import VM from '../lib'
+import * as testUtil from './util'
+import Trie from 'merkle-patricia-tree/secure'
+import ethUtil from 'ethereumjs-util'
 const BN = ethUtil.BN
 
 function parseTestCases (forkConfig, testData, data, gasLimit, value) {
@@ -115,7 +115,7 @@ function runTestCase (options, testData, t, cb) {
   ], cb)
 }
 
-module.exports = function runStateTest (options, testData, t, cb) {
+export default function runStateTest (options, testData, t, cb) {
   try {
     const testCases = parseTestCases(options.forkConfig, testData, options.data, options.gasLimit, options.value)
     async.eachSeries(testCases,

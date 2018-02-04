@@ -1,8 +1,8 @@
-const genesisData = require('ethereumjs-testing').getSingleFile('BasicTests/genesishashestest.json')
-const tape = require('tape')
-const VM = require('../')
-
-var vm = new VM()
+import ethTests from 'ethereumjs-testing'
+import tape from 'tape'
+import VM from '../lib'
+const vm = new VM()
+const genesisData = ethTests.getSingleFile('BasicTests/genesishashestest.json')
 
 tape('[Common]: genesis hashes tests', function (t) {
   t.test('should generate the genesis state correctly', function (st) {

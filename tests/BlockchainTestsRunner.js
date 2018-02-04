@@ -1,15 +1,15 @@
-const async = require('async')
-const testUtil = require('./util.js')
-const ethUtil = require('ethereumjs-util')
-const Trie = require('merkle-patricia-tree/secure')
-const Block = require('ethereumjs-block')
-const Blockchain = require('ethereumjs-blockchain')
-const BlockHeader = require('ethereumjs-block/header.js')
-const VM = require('../')
-const Level = require('levelup')
+import async from 'async'
+import * as testUtil from './util.js'
+import ethUtil from 'ethereumjs-util'
+import Trie from 'merkle-patricia-tree/secure'
+import Block from 'ethereumjs-block'
+import Blockchain from 'ethereumjs-blockchain'
+import BlockHeader from 'ethereumjs-block/header.js'
+import VM from '../lib'
+import Level from 'levelup'
 
 var cacheDB = new Level('./.cachedb')
-module.exports = function runBlockchainTest (options, testData, t, cb) {
+export default function runBlockchainTest (options, testData, t, cb) {
   var blockchainDB = new Level('', {
     db: require('memdown')
   })

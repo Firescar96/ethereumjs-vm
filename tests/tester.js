@@ -1,8 +1,15 @@
-const argv = require('minimist')(process.argv.slice(2))
-const async = require('async')
-const tape = require('tape')
-const testing = require('ethereumjs-testing')
+import minimalist from 'minimist'
+import async from 'async'
+import tape from 'tape'
+import testing from 'ethereumjs-testing'
+
+import BlockchainTestsRunner from './BlockchainTestsRunner'
+import GeneralStateTestsRunner from './GeneralStateTestsRunner'
+import VMTestsRunner from './VMTestsRunner'
+
+const argv = minimalist(process.argv.slice(2))
 const FORK_CONFIG = argv.fork || 'Byzantium'
+const testRunners = {BlockchainTestsRunner, GeneralStateTestsRunner, VMTestsRunner}
 // tests which should be fixed
 const skipBroken = [
   'CreateHashCollision', // impossible hash collision on generating address
@@ -104,9 +111,7 @@ const skipVM = [
   'randomTest643' // TODO fix this
 ]
 
-if (argv.r) {
-  randomized(argv.r, argv.v)
-} else if (argv.s) {
+if (argv.s) {
   runTests('GeneralStateTests', argv)
 } else if (argv.v) {
   runTests('VMTests', argv)
@@ -114,40 +119,6 @@ if (argv.r) {
   runTests('BlockchainTests', argv)
 } else if (argv.a) {
   runAll()
-}
-
-// randomized tests
-// returns 1 if the tests fails
-// returns 0 if the tests succeds
-function randomized (stateTest) {
-  const stateRunner = require('./stateRunner.js')
-  let errored = false
-
-  tape.createStream({
-    objectMode: true
-  }).on('data', function (row) {
-    if (row.ok === false && !errored) {
-      errored = true
-      process.stdout.write('1')
-      process.exit()
-    }
-  }).on('end', function () {
-    process.stdout.write('0')
-  })
-
-  try {
-    stateTest = JSON.parse(stateTest)
-  } catch (e) {
-    console.error('invalid json')
-    process.exit()
-  }
-
-  var keys = Object.keys(stateTest)
-  stateTest = stateTest[keys[0]]
-
-  tape('', t => {
-    stateRunner({}, stateTest, t, t.end)
-  })
 }
 
 function getSkipTests (choices, defaultChoice) {
@@ -199,7 +170,7 @@ function runTests (name, runnerArgs, cb) {
   // runnerArgs.vmtrace = true; // for VMTests
 
   if (argv.customStateTest) {
-    const stateTestRunner = require('./GeneralStateTestsRunner.js')
+    const stateTestRunner = GeneralStateTestsRunner
     let fileName = argv.customStateTest
     tape(name, t => {
       testing.getTestFromSource(fileName, (err, test) => {
@@ -215,7 +186,7 @@ function runTests (name, runnerArgs, cb) {
     })
   } else {
     tape(name, t => {
-      const runner = require(`./${name}Runner.js`)
+      const runner = testRunners[`${name}Runner`]
       testing.getTestsFromArgs(name, (fileName, testName, test) => {
         return new Promise((resolve, reject) => {
           if (name === 'VMTests') {

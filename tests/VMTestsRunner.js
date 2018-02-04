@@ -1,12 +1,12 @@
-const async = require('async')
-const VM = require('../')
-const Account = require('ethereumjs-account')
-const testUtil = require('./util')
-const Trie = require('merkle-patricia-tree/secure')
-const ethUtil = require('ethereumjs-util')
+import async from 'async'
+import VM from '../lib'
+import Account from 'ethereumjs-account'
+import * as testUtil from './util'
+import Trie from 'merkle-patricia-tree/secure'
+import ethUtil from 'ethereumjs-util'
 const BN = ethUtil.BN
 
-module.exports = function runVMTest (options, testData, t, cb) {
+export default function runVMTest (options, testData, t, cb) {
   let state = new Trie()
   let results
   let account

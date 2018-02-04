@@ -1,10 +1,10 @@
-const tape = require('tape')
-const VM = require('../')
-var async = require('async')
-var Account = require('ethereumjs-account')
-var Transaction = require('ethereumjs-tx')
-var Trie = require('merkle-patricia-tree')
-var ethUtil = require('ethereumjs-util')
+import tape from 'tape'
+import VM from '../lib'
+import async from 'async'
+import Account from 'ethereumjs-account'
+import Transaction from 'ethereumjs-tx'
+import Trie from 'merkle-patricia-tree'
+import ethUtil from 'ethereumjs-util'
 
 tape('test the cache api', function (t) {
   t.test('should have the correct value in the cache ', function (st) {
